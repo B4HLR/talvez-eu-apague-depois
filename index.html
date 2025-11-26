@@ -1,0 +1,14 @@
+<button onclick="testarPing()">Testar Ping</button>
+
+<div id="resultado"></div>
+
+<script>
+function testarPing() {
+    fetch("http://localhost:3000/ping/{IP}/")
+        .then(r => r.json())
+        .then(data => {
+            document.getElementById("resultado").innerText =
+                data.sucesso ? "Conectado ✔" : "Falhou ✖";
+        });
+}
+</script>

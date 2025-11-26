@@ -1,0 +1,3 @@
+instalar o node.js
+antes de intalar as dependencia (npm init -y)
+agora as libs(npm install express cors)
