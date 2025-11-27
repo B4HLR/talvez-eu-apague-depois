@@ -1,3 +1,8 @@
 instalar o node.js
 antes de intalar as dependencia (npm init -y)
 agora as libs(npm install express cors)
+--------------------------------------------
+para o server Python
+_____________________________________________
+ter o python instalado
+intalar as bibliotecas(pip install flask , flask-cros)
