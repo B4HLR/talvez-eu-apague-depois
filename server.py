@@ -2,37 +2,48 @@ from flask import Flask, jsonify
 from flask_cors import CORS
 import os
 import subprocess
+import re
 
 app = Flask(__name__)
 CORS(app)
 
+@app.route("/ping/<ip>", methods=["GET", "POST"])
+def ping_host(ip):
 
-@app.route("/ping/<IpConsulta>", methods=["GET","POST"])
-def processar_ping(IpConsulta):
+    try:
+        # -n (Windows) / -c (Linux)
+        param = "-n" if os.name == "nt" else "-c"
 
-    IP = IpConsulta
+        resultado = subprocess.run(
+            ["ping", param, "1", ip],
+            capture_output=True,
+            text=True,
+            timeout=5
+        )
 
-    param = "-n" if os.name == "nt" else "-c"
+        saida = resultado.stdout.lower()
 
-    resultado = subprocess.run(
-    ["ping", param, "1", IP],
-    capture_output=True,
-    text=True
-)
-    primerioParammetro = resultado.stdout.find(f"100%") != -1
-    segundpParammetro = resultado.stdout.find("inacess") != -1
-    terceiroParammetro = resultado.stdout.find("novamente") != -1
+        if resultado.returncode != 0:
+            return jsonify({"sucesso": False})
 
-    analise = primerioParammetro + segundpParammetro + terceiroParammetro == 0
+        padroes_falha = [
+            "100%",
+            "inacess",  
+            "host unreachable",
+            "tempo esgotado",
+            "time out",
+            "novamente"
+        ]
 
-    if analise:
-        return jsonify({
-            "sucesso":True
-        })
-    else:
-         return jsonify({
-            "sucesso":False
-        })
+        for p in padroes_falha:
+            if p in saida:
+                return jsonify({"sucesso": False})
 
-while True:
+        return jsonify({"sucesso": True})
+
+    except Exception as e:
+        return jsonify({"erro": str(e), "sucesso": False}), 500
+
+
+if __name__ == "__main__":
     app.run(debug=True)
